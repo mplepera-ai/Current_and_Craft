@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://currentandcraft.net/sitemap.xml
