@@ -1,46 +1,91 @@
-
-/* GA4: production domains only. No collection on local or Render preview URLs. */
-window.CC_ANALYTICS_CONFIG = {measurementId: 'G-64ZL6JMETJ', enabled: true};
+/* Public Current & Craft site. Basic, non-advertising GA4 page views only.
+ * No overlays, banners, custom click events or personal data.
+ * Visitors may opt out on the linked privacy page. */
 (() => {
-  const cfg = window.CC_ANALYTICS_CONFIG;
-  const live = ['currentandcraft.net','www.currentandcraft.net'].includes(location.hostname);
-  const enabled = cfg.enabled && /^G-[A-Z0-9]+$/.test(cfg.measurementId) && live;
-  window.dataLayer = window.dataLayer || [];
-  function tag(){window.dataLayer.push(arguments);}
-  function send(name, params={}){if(enabled)tag('event',name,params);}
-  let currentPage = '', elapsed = 0, engaged = false;
-  const titles={home:'Current & Craft | Company',games:'Current & Craft | Games & Apps',engineering:'Current & Craft | Engineering Software'};
-  if(enabled){
-    window.gtag=tag;
-    tag('js',new Date());
-    tag('config',cfg.measurementId,{send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false});
-    const script=document.createElement('script');script.async=true;
-    script.src='https://www.googletagmanager.com/gtag/js?id='+cfg.measurementId;
-    document.head.appendChild(script);
+  "use strict";
+  const ID="G-64ZL6JMETJ", KEY="cc-analytics-optout-v2";
+  const live=["currentandcraft.net","www.currentandcraft.net"].includes(location.hostname);
+  const titles={home:"Current & Craft | Company",games:"Current & Craft | Games & Apps",
+                engineering:"Current & Craft | Engineering Software"};
+  let allowed=false, loaded=false, pageName="";
+  function saved(){
+    try{
+      return localStorage.getItem(KEY)==="no" ||
+             (localStorage.getItem(KEY)!=="yes" &&
+              localStorage.getItem("cc-marketing-consent-v1")==="no");
+    }catch(_){return false;}
   }
-  window.ccTrackPage = page => {
-    if(page===currentPage)return;
-    currentPage=page; elapsed=0; engaged=false;
-    document.title=titles[page];
-    // Exclude URL queries and arbitrary fragments from event data.
-    send('page_view',{page_title:titles[page],page_location:location.origin+location.pathname,page_section:page});
+  function store(value){try{localStorage.setItem(KEY,value);}catch(_){}}
+  function gtag(){window.dataLayer.push(arguments);}
+  function sendPage(){
+    if(!allowed || !loaded || !titles[pageName]) return;
+    gtag("event","page_view",{page_title:titles[pageName],
+      page_location:location.origin+location.pathname,page_referrer:""});
+  }
+  function begin(){
+    if(!live || saved() || allowed) return;
+    allowed=true; window.ccAnalyticsAllowed=true;
+    if(loaded){
+      window["ga-disable-"+ID]=false;
+      gtag("consent","update",{analytics_storage:"granted"});
+      sendPage(); return;
+    }
+    loaded=true;window.dataLayer=window.dataLayer||[];window.gtag=gtag;
+    gtag("consent","default",{analytics_storage:"granted",ad_storage:"denied",
+      ad_user_data:"denied",ad_personalization:"denied"});
+    gtag("js",new Date());
+    gtag("config",ID,{send_page_view:false,allow_google_signals:false,
+      allow_ad_personalization_signals:false,cookie_expires:2592000,
+      page_location:location.origin+location.pathname,page_referrer:""});
+    const script=document.createElement("script");
+    script.async=true;
+    script.src="https://www.googletagmanager.com/gtag/js?id="+encodeURIComponent(ID);
+    document.head.appendChild(script);
+    sendPage();
+  }
+  function clearCookies(){
+    document.cookie.split(";").forEach(pair=>{
+      const n=pair.trim().split("=")[0];
+      if(n!=="_ga" && !/^_ga_[A-Za-z0-9_]+$/.test(n))return;
+      [null,location.hostname,"."+location.hostname,".currentandcraft.net"].forEach(domain=>{
+        document.cookie=n+"=; Max-Age=0; path=/; SameSite=Lax"+(domain?"; domain="+domain:"");
+      });
+    });
+  }
+  function optOut(){
+    store("no");allowed=false;window.ccAnalyticsAllowed=false;
+    if(loaded){window["ga-disable-"+ID]=true;gtag("consent","update",{analytics_storage:"denied"});}
+    clearCookies();
+    if(loaded)location.reload();
+  }
+  function choose(value){
+    if(value==="no"){optOut();}
+    else {
+      store("yes");begin();
+      const status=document.getElementById("cc-analytics-status");
+      if(status)status.textContent="Basic website traffic analytics: on";
+    }
+    const status=document.getElementById("cc-analytics-status");
+    if(status && value==="no")status.textContent="Basic website traffic analytics: off";
+  }
+  window.ccTrackPage=name=>{
+    if(!titles[name]) return;
+    if(pageName===name)return;
+    pageName=name;document.title=titles[name];
+    sendPage();
   };
-  document.addEventListener('click',event=>{
-    const link=event.target.closest('a');if(!link)return;
-    const target=new URL(link.href,location.href);
-    const product=link.dataset.product || link.closest('.product')?.querySelector('h3')?.textContent.trim();
-    const placement=link.dataset.placement || (link.closest('nav')?'header':link.closest('.category')?'category_card':'product_card');
-    if(product && target.protocol==='https:')send('product_click',{product_name:product,page_section:currentPage,placement,link_url:target.origin+target.pathname});
-    else if(target.hostname==='auleengineering.com')send('partner_click',{partner_name:'Aule Engineering Consultants, LLC',page_section:currentPage});
-    else if(target.origin===location.origin)send('navigation_click',{destination:target.pathname+target.hash,page_section:currentPage,placement});
-  });
-  // Count actual visible viewing time, rather than a background tab's timer.
-  let last=performance.now();
-  setInterval(()=>{const now=performance.now();const delta=now-last;last=now;
-    if(document.visibilityState==='visible' && delta<2000 && !engaged){elapsed+=delta;
-      if(elapsed>=30000){engaged=true;send('engaged_30_seconds',{page_section:currentPage});}}
-  },1000);
-  document.addEventListener('visibilitychange',()=>{last=performance.now();});
+  window.ccAnalyticsAllowed=false;
+  function settings(){
+    const accept=document.getElementById("cc-analytics-accept");
+    const reject=document.getElementById("cc-analytics-reject");
+    const status=document.getElementById("cc-analytics-status");
+    if(status)status.textContent=saved()?
+      "Basic website traffic analytics: off":"Basic website traffic analytics: on";
+    if(accept)accept.addEventListener("click",()=>choose("yes"));
+    if(reject)reject.addEventListener("click",()=>choose("no"));
+  }
+  if(live && !saved())begin();
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",settings,{once:true});
+  else settings();
 })();
-
 window.ccTrackPage(document.body.dataset.page);
