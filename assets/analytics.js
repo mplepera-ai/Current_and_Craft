@@ -7,7 +7,7 @@
   const live=["currentandcraft.net","www.currentandcraft.net"].includes(location.hostname);
   const titles={home:"Current & Craft | Company",games:"Current & Craft | Games & Apps",
                 engineering:"Current & Craft | Engineering Software"};
-  let allowed=false, loaded=false, pageName="";
+  let allowed=true, loaded=true, pageName="";
   function saved(){
     try{
       return localStorage.getItem(KEY)==="no" ||
