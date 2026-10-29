@@ -24,11 +24,16 @@ Our event code excludes form contents, email addresses, full link URLs, URL quer
 <p>We do not use Google Analytics here for personalized advertising, Google signals, advertising cookies,
 retargeting or sale of personal information. Your choice is saved in first-party browser storage so that
 we remember it. Rejecting does not prevent you from using the site.</p>
-<h2>Your choices</h2>
-<p>Choose Allow or Reject in the analytics banner. You can reopen the banner using “Analytics preferences”
-in the footer of the main company, games and engineering pages and change your choice at any time. Revoking consent stops subsequent
-analytics events and attempts to clear this website's Google Analytics cookies; it does not erase data
-already processed by Google. Browser settings may also block or clear cookies.</p>
+<h2 id="analytics-controls">Optional analytics preferences</h2>
+<p>We do not show an analytics banner or popup. Optional Google Analytics is off unless you
+explicitly allow it below. You may revisit this page to change your preference at any time.
+Withdrawing consent stops new events and attempts to delete this site's GA4 cookies;
+it does not erase data already processed by Google.</p>
+<div role="group" aria-label="Analytics preference">
+<p id="cc-analytics-status" role="status">Analytics is off unless you opt in.</p>
+<button type="button" id="cc-analytics-accept">Allow optional analytics</button>
+<button type="button" id="cc-analytics-reject">Keep analytics off / withdraw consent</button>
+</div>
 <h2>Sharing and retention</h2>
 <p>We use our hosting provider to serve the website and Google LLC to process optional analytics.
 We do not share website analytics with advertisers for personalized targeting. Google may process
@@ -44,4 +49,5 @@ must not be sent to website analytics.</p>
 <p>For privacy inquiries, contact <a href="mailto:info@currentandcraft.net">info@currentandcraft.net</a>.
 We will update this notice if our data practices materially change. Before publishing this notice,
 the website owner must verify that this contact mailbox is operational.</p>
+<script src="assets/analytics.js" defer></script>
 </main></body></html>
