@@ -48,7 +48,8 @@
   window.ccTrackPage=page;window.ccAnalyticsAllowed=false;
   function decide(x){
     remember(x);if(x==="yes")start();else stop();
-    const banner=document.getElementById("cc-consent");if(banner)banner.hidden=true;
+    const status=document.getElementById("cc-analytics-status");
+    if(status)status.textContent=x==="yes"?"Analytics allowed":"Analytics off";
   }
   function banner(){
     // Intentionally no banner or popup. Analytics controls live on privacy.html.
