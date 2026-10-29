@@ -1,85 +1,91 @@
-/* Current & Craft marketing analytics: opt-in ONLY. No Google tag or pings before consent. */
+/* Public Current & Craft site. Basic, non-advertising GA4 page views only.
+ * No overlays, banners, custom click events or personal data.
+ * Visitors may opt out on the linked privacy page. */
 (() => {
   "use strict";
-  const ID="G-64ZL6JMETJ", KEY="cc-marketing-consent-v1";
+  const ID="G-64ZL6JMETJ", KEY="cc-analytics-optout-v2";
   const live=["currentandcraft.net","www.currentandcraft.net"].includes(location.hostname);
-  const titles={home:"Current & Craft | Company",games:"Current & Craft | Games & Apps",engineering:"Current & Craft | Engineering Software"};
-  let allowed=false, loaded=false, current="", elapsed=0, engaged=false, last=performance.now();
-  function choice(){try {let x=localStorage.getItem(KEY);return x==="yes"||x==="no"?x:null;}catch(_){return null;}}
-  function remember(x){try{localStorage.setItem(KEY,x);}catch(_){}}
-  function tag(){window.dataLayer.push(arguments);}
-  function send(event,params={}){if(allowed && loaded)tag("event",event,params);}
-  function start(){
-    if(!live||allowed||!/^G-[A-Z0-9]+$/.test(ID))return;
-    allowed=true;window.ccAnalyticsAllowed=true;
-    if(loaded){tag("consent","update",{analytics_storage:"granted"});return;}
-    loaded=true;window.dataLayer=window.dataLayer||[];window.gtag=tag;
-    tag("consent","default",{analytics_storage:"denied",ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied"});
-    tag("js",new Date());
-    tag("consent","update",{analytics_storage:"granted"});
-    tag("config",ID,{send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false,
-      page_referrer:"",page_location:location.origin+location.pathname});
-    const s=document.createElement("script");s.async=true;
-    s.src="https://www.googletagmanager.com/gtag/js?id="+encodeURIComponent(ID);
-    document.head.appendChild(s);
-    if(current)page(current,true);
+  const titles={home:"Current & Craft | Company",games:"Current & Craft | Games & Apps",
+                engineering:"Current & Craft | Engineering Software"};
+  let allowed=false, loaded=false, pageName="";
+  function saved(){
+    try{
+      return localStorage.getItem(KEY)==="no" ||
+             (localStorage.getItem(KEY)!=="yes" &&
+              localStorage.getItem("cc-marketing-consent-v1")==="no");
+    }catch(_){return false;}
   }
-  function dropCookies(){
+  function store(value){try{localStorage.setItem(KEY,value);}catch(_){}}
+  function gtag(){window.dataLayer.push(arguments);}
+  function sendPage(){
+    if(!allowed || !loaded || !titles[pageName]) return;
+    gtag("event","page_view",{page_title:titles[pageName],
+      page_location:location.origin+location.pathname,page_referrer:""});
+  }
+  function begin(){
+    if(!live || saved() || allowed) return;
+    allowed=true; window.ccAnalyticsAllowed=true;
+    if(loaded){
+      window["ga-disable-"+ID]=false;
+      gtag("consent","update",{analytics_storage:"granted"});
+      sendPage(); return;
+    }
+    loaded=true;window.dataLayer=window.dataLayer||[];window.gtag=gtag;
+    gtag("consent","default",{analytics_storage:"granted",ad_storage:"denied",
+      ad_user_data:"denied",ad_personalization:"denied"});
+    gtag("js",new Date());
+    gtag("config",ID,{send_page_view:false,allow_google_signals:false,
+      allow_ad_personalization_signals:false,cookie_expires:2592000,
+      page_location:location.origin+location.pathname,page_referrer:""});
+    const script=document.createElement("script");
+    script.async=true;
+    script.src="https://www.googletagmanager.com/gtag/js?id="+encodeURIComponent(ID);
+    document.head.appendChild(script);
+    sendPage();
+  }
+  function clearCookies(){
     document.cookie.split(";").forEach(pair=>{
       const n=pair.trim().split("=")[0];
-      if(n!=="_ga"&&!/^_ga_[A-Za-z0-9_]+$/.test(n))return;
+      if(n!=="_ga" && !/^_ga_[A-Za-z0-9_]+$/.test(n))return;
       [null,location.hostname,"."+location.hostname,".currentandcraft.net"].forEach(domain=>{
         document.cookie=n+"=; Max-Age=0; path=/; SameSite=Lax"+(domain?"; domain="+domain:"");
       });
     });
   }
-  function stop(){
-    allowed=false;window.ccAnalyticsAllowed=false;
-    if(loaded){tag("consent","update",{analytics_storage:"denied"});window["ga-disable-"+ID]=true;}
-    dropCookies();
+  function optOut(){
+    store("no");allowed=false;window.ccAnalyticsAllowed=false;
+    if(loaded){window["ga-disable-"+ID]=true;gtag("consent","update",{analytics_storage:"denied"});}
+    clearCookies();
     if(loaded)location.reload();
   }
-  function page(name,force=false){
-    if(!titles[name]||(!force&&current===name))return;
-    current=name;elapsed=0;engaged=false;document.title=titles[name];
-    send("page_view",{page_title:titles[name],page_location:location.origin+location.pathname,
-      page_referrer:"",page_section:name});
-  }
-  window.ccTrackPage=page;window.ccAnalyticsAllowed=false;
-  function decide(x){
-    remember(x);if(x==="yes")start();else stop();
-    const status=document.getElementById("cc-analytics-status");
-    if(status)status.textContent=x==="yes"?"Analytics allowed":"Analytics off";
-  }
-  function banner(){
-    // Intentionally no banner or popup. Analytics controls live on privacy.html.
-    const yes=document.getElementById("cc-analytics-accept");
-    const no=document.getElementById("cc-analytics-reject");
-    const status=document.getElementById("cc-analytics-status");
-    if(status)status.textContent=choice()==="yes"?"Analytics allowed":
-      "Analytics off unless you explicitly opt in";
-    if(yes)yes.addEventListener("click",()=>decide("yes"));
-    if(no)no.addEventListener("click",()=>decide("no"));
-  }
-  document.addEventListener("click",e=>{
-    if(!allowed)return;
-    const a=e.target.closest&&e.target.closest("a");if(!a)return;
-    const u=new URL(a.href,location.href);
-    const product=a.dataset.product||a.closest(".product")?.querySelector("h3")?.textContent.trim();
-    const placement=a.dataset.placement||(a.closest("nav")?"header":a.closest(".category")?"category_card":"product_card");
-    if(product&&u.protocol==="https:")send("product_click",{product_name:product,page_section:current,placement});
-    else if(u.hostname==="auleengineering.com")send("partner_click",{partner_name:"Aule Engineering",page_section:current});
-    else if(u.origin===location.origin)send("navigation_click",{page_section:current,placement});
-    // Never transmit arbitrary URLs, query strings, customer content or form fields.
-  });
-  setInterval(()=>{
-    const now=performance.now(),delta=now-last;last=now;
-    if(allowed&&document.visibilityState==="visible"&&delta<2000&&!engaged){
-      elapsed+=delta;if(elapsed>=30000){engaged=true;send("engaged_30_seconds",{page_section:current});}
+  function choose(value){
+    if(value==="no"){optOut();}
+    else {
+      store("yes");begin();
+      const status=document.getElementById("cc-analytics-status");
+      if(status)status.textContent="Basic website traffic analytics: on";
     }
-  },1000);
-  document.addEventListener("visibilitychange",()=>{last=performance.now();});
-  if(live&&choice()==="yes")start();
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",banner,{once:true});else banner();
+    const status=document.getElementById("cc-analytics-status");
+    if(status && value==="no")status.textContent="Basic website traffic analytics: off";
+  }
+  window.ccTrackPage=name=>{
+    if(!titles[name]) return;
+    if(pageName===name)return;
+    pageName=name;document.title=titles[name];
+    sendPage();
+  };
+  window.ccAnalyticsAllowed=false;
+  function settings(){
+    const accept=document.getElementById("cc-analytics-accept");
+    const reject=document.getElementById("cc-analytics-reject");
+    const status=document.getElementById("cc-analytics-status");
+    if(status)status.textContent=saved()?
+      "Basic website traffic analytics: off":"Basic website traffic analytics: on";
+    if(accept)accept.addEventListener("click",()=>choose("yes"));
+    if(reject)reject.addEventListener("click",()=>choose("no"));
+  }
+  if(live && !saved())begin();
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",settings,{once:true});
+  else settings();
 })();
 window.ccTrackPage(document.body.dataset.page);
