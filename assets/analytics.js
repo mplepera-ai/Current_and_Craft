@@ -51,25 +51,14 @@
     const banner=document.getElementById("cc-consent");if(banner)banner.hidden=true;
   }
   function banner(){
-    if(!live)return;
-    const css=document.createElement("link");css.rel="stylesheet";css.href="assets/analytics-consent.css";
-    document.head.appendChild(css);
-    const box=document.createElement("aside");box.id="cc-consent";box.setAttribute("role","region");
-    box.setAttribute("aria-label","Optional website analytics");
-    const p=document.createElement("p");
-    p.append("Optional analytics: We use Google Analytics to understand visits and product interest only if you allow it. No Google analytics tag loads before permission. Read our ");
-    const a=document.createElement("a");a.href="privacy.html";a.textContent="Privacy Notice";p.append(a,".");
-    box.appendChild(p);
-    for(const [label,value] of [["Allow analytics","yes"],["Reject analytics","no"]]){
-      const b=document.createElement("button");b.type="button";b.textContent=label;
-      if(value==="no")b.className="reject";b.addEventListener("click",()=>decide(value));box.appendChild(b);
-    }
-    box.hidden=choice()!==null;document.body.appendChild(box);
-    const footer=document.querySelector("footer");
-    if(footer){
-      const b=document.createElement("button");b.type="button";b.textContent="Analytics preferences";
-      b.className="cc-analytics-preferences";b.addEventListener("click",()=>{box.hidden=false;});footer.appendChild(b);
-    }
+    // Intentionally no banner or popup. Analytics controls live on privacy.html.
+    const yes=document.getElementById("cc-analytics-accept");
+    const no=document.getElementById("cc-analytics-reject");
+    const status=document.getElementById("cc-analytics-status");
+    if(status)status.textContent=choice()==="yes"?"Analytics allowed":
+      "Analytics off unless you explicitly opt in";
+    if(yes)yes.addEventListener("click",()=>decide("yes"));
+    if(no)no.addEventListener("click",()=>decide("no"));
   }
   document.addEventListener("click",e=>{
     if(!allowed)return;
