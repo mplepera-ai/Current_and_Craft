@@ -93,9 +93,10 @@ Other GA4 reports:
 - [ ] Test production on currentandcraft.net and www.currentandcraft.net.
 - [ ] Verify Enhanced Measurement settings, including outbound link URL handling.
 
-NOTE: Browser localStorage preferences do not automatically transfer across the bare
-and www subdomains. Prefer redirecting www to the canonical host; otherwise build shared
-cross-subdomain preference handling to ensure the opt-out follows the visitor.
+The functional cookie cc_analytics_preference shares the website analytics preference
+between the bare and www hostnames, subject to browser cookie/storage restrictions.
+Old localStorage opt-outs remain respected. For simpler deployment, www may also
+redirect to the canonical host. Test both hosts.
 
 ## Future phase: confirmed app opens / usage
 
