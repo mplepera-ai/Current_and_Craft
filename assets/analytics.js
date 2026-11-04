@@ -34,19 +34,38 @@
   let pageName = "";
   window.ccAnalyticsAllowed = false;
 
-  function savedOptOut() {
+  // A first-party functional preference cookie shares opt-out across www and apex.
+  // An older per-host localStorage opt-out always takes precedence.
+  function sharedPreference() {
     try {
-      const preference = localStorage.getItem(KEY);
-      if (preference === "no") return true;
-      if (preference === "yes") return false;
-      return localStorage.getItem("cc-marketing-consent-v1") === "no";
+      const entry = document.cookie.split(";").map(v => v.trim())
+        .find(v => v.startsWith("cc_analytics_preference="));
+      return entry ? entry.split("=")[1] : null;
     } catch (_) {
-      return false;
+      return null;
     }
+  }
+
+  function savedOptOut() {
+    let preference = null;
+    let legacy = null;
+    try {
+      preference = localStorage.getItem(KEY);
+      legacy = localStorage.getItem("cc-marketing-consent-v1");
+    } catch (_) { /* Cross-subdomain preference cookie still applies. */ }
+    if (preference === "no" || sharedPreference() === "no") return true;
+    if (preference === "yes" || sharedPreference() === "yes") return false;
+    return legacy === "no";
   }
 
   function store(value) {
     try { localStorage.setItem(KEY, value); } catch (_) { /* Storage may be blocked. */ }
+    if (live) {
+      try {
+        document.cookie = "cc_analytics_preference=" + value +
+          "; Max-Age=31536000; Path=/; SameSite=Lax; Secure; Domain=currentandcraft.net";
+      } catch (_) { /* Cookie use may be blocked. */ }
+    }
   }
 
   function pageUrl() {
@@ -256,6 +275,7 @@
 
   // Keep the existing default-on / opt-out policy; regional prior-consent
   // requirements must be handled separately if the site is offered there.
+  if (savedOptOut()) window["ga-disable-" + ID] = true;
   if (live && !savedOptOut()) begin();
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initializePage, { once: true });
