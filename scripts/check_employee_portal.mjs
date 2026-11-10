@@ -8,6 +8,15 @@ const js=readFileSync(resolve(root,'employee/portal.js'),'utf8');
 const files=['index.html','games.html','engineering.html'];
 assert.match(html,/noindex,nofollow/);
 assert.match(html,/id="sign-in"/);
+// Google/Firebase popup uses the Google API script; do not block it by CSP.
+const csp = html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]+)">/)?.[1];
+assert.ok(csp, 'Employee portal CSP meta is required');
+assert.match(csp, /script-src 'self' https:\/\/www\.gstatic\.com https:\/\/apis\.google\.com;/);
+assert.match(csp, /connect-src [^;]*https:\/\/apis\.google\.com https:\/\/accounts\.google\.com;/);
+assert.match(csp, /frame-src https:\/\/accounts\.google\.com https:\/\/jarvis-hub-4ae58\.firebaseapp\.com;/);
+assert.match(csp, /default-src 'none'/);
+assert.doesNotMatch(csp, /'unsafe-inline'|'unsafe-eval'|script-src [^;]*\*/);
+
 assert.match(html,/id="launch-hub"/);
 assert.match(html,/href="\.\/hub\/"/);
 assert.match(js,/APP_NAME = 'jarvis-hub-private'/);
