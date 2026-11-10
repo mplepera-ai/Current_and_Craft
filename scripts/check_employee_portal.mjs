@@ -14,7 +14,8 @@ assert.match(js,/APP_NAME = 'jarvis-hub-private'/);
 assert.match(js,/projectId:'jarvis-hub-4ae58'/);
 assert.match(js,/OWNER_UID = 'mmsVWiF2PLQgWuUmPUSDhXp0f4n1'/);
 assert.match(js,/hub\/ready\.json/);
-assert.doesNotMatch(html,/analytics\.js|gtag\(|G-[A-Z0-9]+/i);
+// Match a complete GA4 measurement ID, not ordinary words like 'sign-in'.
+assert.doesNotMatch(html,/analytics\.js|gtag\(|\bG-[A-Z0-9]{8,}\b/i);
 assert.doesNotMatch(js,/firebase-admin|private_key|localhost:8765/);
 for(const file of files){
   assert.match(readFileSync(resolve(root,file),'utf8'),/href="employee\/"[^>]*>Employee Login/);
