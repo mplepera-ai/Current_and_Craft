@@ -14,6 +14,11 @@ assert.match(js,/APP_NAME = 'jarvis-hub-private'/);
 assert.match(js,/projectId:'jarvis-hub-4ae58'/);
 assert.match(js,/OWNER_UID = 'mmsVWiF2PLQgWuUmPUSDhXp0f4n1'/);
 assert.match(js,/hub\/ready\.json/);
+assert.match(js,/authErrorCode\(error\)/);
+assert.match(js,/auth\/popup-blocked/);
+assert.match(js,/auth\/unauthorized-domain/);
+assert.match(js,/Employee Firebase sign-in error code:/);
+assert.doesNotMatch(js,/console\.(?:log|warn|error)\([^\n]*\berror\s*\)/);
 // Match a complete GA4 measurement ID, not ordinary words like 'sign-in'.
 assert.doesNotMatch(html,/analytics\.js|gtag\(|\bG-[A-Z0-9]{8,}\b/i);
 assert.doesNotMatch(js,/firebase-admin|private_key|localhost:8765/);

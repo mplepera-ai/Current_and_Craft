@@ -19,6 +19,26 @@ const login = document.getElementById('sign-in');
 const logout = document.getElementById('sign-out');
 const launch = document.getElementById('launch-hub');
 
+// Only surface Firebase's stable error code, never the raw error message,
+// credential details, Google account identifiers or OAuth responses.
+function authErrorCode(error) {
+  const code = typeof error?.code === 'string' ? error.code : '';
+  return /^auth\/[a-z0-9-]{1,64}$/.test(code) ? code : 'auth/unknown';
+}
+function authErrorMessage(code) {
+  const hints = {
+    'auth/unauthorized-domain': 'The website hostname is not authorized in Firebase Authentication.',
+    'auth/popup-blocked': 'Allow Google sign-in popups for currentandcraft.net and retry.',
+    'auth/popup-closed-by-user': 'The Google sign-in window closed before completion. Try again.',
+    'auth/cancelled-popup-request': 'Another sign-in request interrupted this one. Retry once.',
+    'auth/operation-not-allowed': 'Enable the Google sign-in provider in Firebase Authentication.',
+    'auth/network-request-failed': 'The browser could not reach Firebase Authentication. Check browser blocking extensions and connectivity.',
+    'auth/operation-not-supported-in-this-environment': 'Use a normal HTTPS browser tab rather than an embedded webview.',
+    'auth/invalid-api-key': 'The Firebase web configuration must be reviewed.',
+  };
+  return `Google sign-in failed (${code}). ${hints[code] || 'Check the browser Console for blocked requests or CSP violations.'}`;
+}
+
 function show(message, {loginVisible=false, logoutVisible=false, hubVisible=false}={}) {
   status.textContent = message;
   login.hidden = !loginVisible;
@@ -47,8 +67,10 @@ login.addEventListener('click', async () => {
     const provider=new GoogleAuthProvider();
     provider.setCustomParameters({prompt:'select_account'});
     await signInWithPopup(auth,provider);
-  } catch {
-    show('Google sign-in failed or was canceled. Confirm currentandcraft.net is an authorized domain in the dedicated Jarvis Firebase project.', {loginVisible:true});
+  } catch (error) {
+    const code = authErrorCode(error);
+    console.warn('Employee Firebase sign-in error code:', code);
+    show(authErrorMessage(code), {loginVisible:true});
   }
 });
 logout.addEventListener('click', async () => {
@@ -66,4 +88,8 @@ onIdTokenChanged(auth, async (user) => {
   } else {
     show('Signed in. The Jarvis Hub frontend has not yet been deployed under /employee/hub/. The local server and website are separate setup steps.', {logoutVisible:true});
   }
-}, () => show('Authentication could not be verified. Try again later.', {loginVisible:true}));
+}, (error) => {
+  const code = authErrorCode(error);
+  console.warn('Employee Firebase auth-state error code:', code);
+  show('Authentication could not be verified (' + code + '). Please retry.', {loginVisible:true});
+});
