@@ -1,0 +1,15 @@
+{
+  "schema": "jarvis-hub-static-release-v1",
+  "source_repository": "mplepera-ai/Jarvis_Hub",
+  "source_commit": "85a362e376774265d13fbcfb859b5cbf8df0be94",
+  "base": "/employee/hub/",
+  "api_origin": "https://api.currentandcraft.net",
+  "prior_website_commit": "d72a54033debb319918d967bdf9501aa0d62b3ec",
+  "files": {
+    "index.html": "779b555b5e74d7171110db518dabc100ede053da4f0fc653a17f647c63f1d740",
+    "ready.json": "6bc49460a370d274ef3811925710aadddb643fde85a75f317a25c1bbc8449433",
+    "assets/firebase-B6WwfiXz.js": "f910779f13c1f3b02408bf4820b2134ccb5a52f89adb325ad299d537566ac842",
+    "assets/index-2Ba29zOA.js": "44007bb07e3277ca7fda16e7c73b94a77fff2108425fdd300245504e2697ec6b",
+    "assets/index-CSEy2qnS.css": "19fcf782c02012ec79bc7576d787f9f87eae3519fbe13f432b1b109a6337d449"
+  }
+}
