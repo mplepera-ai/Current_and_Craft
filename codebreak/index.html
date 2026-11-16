@@ -7,7 +7,7 @@
 :root{color-scheme:dark;--bg:#080f18;--panel:#13202b;--line:#2b4351;--text:#dcecf2;--muted:#9bb3c1;--accent:#7de4de;--gold:#f8c27d;--green:#91e5ae}
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 70% 0%,#153541,var(--bg) 60%);font:15px/1.5 system-ui,Segoe UI,Arial;color:var(--text)}
 a{color:var(--accent)}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:17px max(18px,calc((100vw - 1480px)/2));border-bottom:1px solid var(--line);background:#0b131d}
-.logo{font-size:20px;letter-spacing:3px;font-weight:850}.logo b{color:var(--accent)}.small{color:var(--muted);font:12px monospace}.container{max-width:1480px;margin:auto;padding:18px;display:grid;grid-template-columns:240px minmax(0,1fr) 275px;gap:16px}
+.logo{font-size:20px;letter-spacing:3px;font-weight:850}.logo b{color:var(--accent)}.small{color:var(--muted);font:12px monospace}.container{max-width:1480px;margin:auto;padding:18px;display:grid;grid-template-columns:210px minmax(0,1fr) minmax(300px,350px);gap:16px}
 .panel{border:1px solid var(--line);border-radius:11px;background:linear-gradient(150deg,#14222d,#0d1722);overflow:hidden}
 .head{padding:13px 16px;border-bottom:1px solid var(--line);font:700 12px monospace;letter-spacing:1px;color:var(--muted)}
 .content{padding:18px}.chapter{padding:13px 16px;border-bottom:1px solid #203240;color:var(--muted);font-size:13px}.chapter.active{color:var(--accent);background:#17333b}.chapter.done{color:var(--green)}
@@ -19,6 +19,9 @@ pre{background:#08141e;color:var(--green);padding:15px;border-radius:7px;white-s
 .progress{height:7px;background:#263944;border-radius:6px;overflow:hidden;margin:15px 0}.progress>div{height:100%;width:0;background:var(--accent)}
 .footer{max-width:1480px;margin:5px auto 20px;padding:0 18px;color:#7e9eaa;font:12px monospace}
 @media(max-width:1080px){.container{grid-template-columns:200px 1fr}.right{grid-column:1/-1}}@media(max-width:700px){.container{display:flex;flex-direction:column}.top{padding:14px}.right{order:3}.left{order:2}.middle{order:1}}
+
+.reference-tools{display:grid;gap:8px;margin-bottom:10px}.reference-tools input,.reference-tools select{background:#08141e;border:1px solid var(--line);border-radius:6px;padding:9px 10px;color:var(--text);width:100%;min-width:0;font:13px system-ui}
+.reference-card{border-bottom:1px solid #28404b;padding:9px 0}.reference-card summary{cursor:pointer;font-size:13px;font-weight:700;color:#cbdde5}.reference-card p{font-size:12px;color:var(--muted);margin:8px 0}.reference-card pre{min-height:0;max-height:none;font-size:12px;white-space:pre-wrap;margin:8px 0}.reference-topic{color:var(--accent);font:10px monospace;margin-left:5px}.reference-scroll{max-height:520px;overflow-y:auto;padding-right:5px}.reference-desc{font-size:12px;color:var(--muted)}
 </style></head><body>
 <header class="top"><div><span class="logo">CODE<b>BREAK</b></span><div class="small">CASE 001 / THE LAST TRANSMISSION</div></div><div class="small"><span id="runtime">LOADING PYTHON…</span> · <span id="xp">0 XP</span> · <a href="../games.html">Back to Games & Apps</a></div></header>
 <div class="container">
@@ -28,8 +31,9 @@ pre{background:#08141e;color:var(--green);padding:15px;border-radius:7px;white-s
 <section class="panel"><div class="head">INVESTIGATION TERMINAL / PYTHON</div><div class="content"><h2 id="objective"></h2><p class="lesson" id="lesson"></p><p class="filename">investigation.py — edit code below</p><label for="editor" class="small">SCRIPT EDITOR</label><textarea id="editor" spellcheck="false" aria-label="Python code editor"></textarea><div class="controls"><button class="primary" id="run" disabled>Run Python</button><button id="hint">Show hint</button><button id="restore">Restore starter</button><button id="next" disabled>Next mission →</button></div><div id="feedback" role="status" aria-live="polite"></div></div></section>
 <section class="panel"><div class="head">PROGRAM OUTPUT</div><div class="content"><pre id="output" aria-live="polite">&gt; Initializing Python…</pre></div></section>
 </main>
-<aside class="panel right"><div class="head">EVIDENCE LOCKER</div><div class="content"><p class="lesson">Solve missions to unlock the recovered case files.</p><div id="files"></div><pre id="filetext">Select an unlocked file to read it.</pre><div class="head">INVESTIGATION NOTES</div><p class="lesson" id="notes"></p></div></aside>
+<aside class="panel right"><div class="head">FIELD MANUAL / PYTHON REFERENCE</div><div class="content"><p class="reference-desc">Independent examples from everyday programming. These aren't mission solutions. Browse as you would a real coding manual.</p><div class="reference-tools"><label class="small" for="reference-search">SEARCH MANUAL</label><input id="reference-search" type="search" placeholder="Search topics or code…" autocomplete="off"><label class="small" for="reference-filter">TOPIC INDEX</label><select id="reference-filter"></select><div id="reference-count" class="small"></div></div><div id="reference-list" class="reference-scroll"></div></div><div class="head">EVIDENCE LOCKER</div><div class="content"><p class="lesson">Solve missions to unlock the recovered case files.</p><div id="files"></div><pre id="filetext">Select an unlocked file to read it.</pre><div class="head">INVESTIGATION NOTES</div><p class="lesson" id="notes"></p></div></aside>
 </div><div class="footer">FICTIONAL INVESTIGATION · Local browser progress · Python runs in a dedicated worker · © Current & Craft, LLC</div>
+<script src="./reference.js" defer></script>
 <script>
 'use strict';
 const missions=[
