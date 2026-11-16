@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CODEBREAK — The Last Transmission | Current & Craft</title>
+<meta name="description" content="Solve a murder mystery by writing real Python. A free playable coding adventure from Current & Craft.">
+<link rel="canonical" href="https://currentandcraft.net/codebreak/">
+<style>
+:root{color-scheme:dark;--bg:#080f18;--panel:#13202b;--line:#2b4351;--text:#dcecf2;--muted:#9bb3c1;--accent:#7de4de;--gold:#f8c27d;--green:#91e5ae}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 70% 0%,#153541,var(--bg) 60%);font:15px/1.5 system-ui,Segoe UI,Arial;color:var(--text)}
+a{color:var(--accent)}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:17px max(18px,calc((100vw - 1480px)/2));border-bottom:1px solid var(--line);background:#0b131d}
+.logo{font-size:20px;letter-spacing:3px;font-weight:850}.logo b{color:var(--accent)}.small{color:var(--muted);font:12px monospace}.container{max-width:1480px;margin:auto;padding:18px;display:grid;grid-template-columns:240px minmax(0,1fr) 275px;gap:16px}
+.panel{border:1px solid var(--line);border-radius:11px;background:linear-gradient(150deg,#14222d,#0d1722);overflow:hidden}
+.head{padding:13px 16px;border-bottom:1px solid var(--line);font:700 12px monospace;letter-spacing:1px;color:var(--muted)}
+.content{padding:18px}.chapter{padding:13px 16px;border-bottom:1px solid #203240;color:var(--muted);font-size:13px}.chapter.active{color:var(--accent);background:#17333b}.chapter.done{color:var(--green)}
+h1{font-size:26px;margin:8px 0 12px}h2{font-size:19px;margin:7px 0}p{margin:10px 0}.scene{font:12px monospace;color:var(--gold)}.dialogue{border-left:3px solid var(--accent);padding:8px 15px;background:#0c1a24;margin-top:16px}
+.middle{display:grid;gap:16px;min-width:0}.lesson{font-size:13px;color:var(--muted)}.filename{font:12px monospace;color:var(--accent)}textarea{font:14px/1.6 Consolas,Monaco,monospace;tab-size:4;display:block;background:#080f17;color:#d4eef3;border:1px solid var(--line);border-radius:8px;padding:16px;width:100%;height:220px;resize:vertical;outline-color:var(--accent)}
+.controls{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}button{border:1px solid #537783;background:#1c3440;border-radius:7px;color:var(--text);padding:10px 14px;cursor:pointer;font-weight:700}button.primary{background:var(--accent);color:#0c1b21;border-color:var(--accent)}button:disabled{opacity:.45;cursor:not-allowed}button:hover:not(:disabled){filter:brightness(1.12)}
+pre{background:#08141e;color:var(--green);padding:15px;border-radius:7px;white-space:pre-wrap;overflow-wrap:anywhere;min-height:72px;max-height:190px;overflow:auto;font:13px/1.6 Consolas,monospace}
+#feedback{margin-top:12px;font-size:13px;color:var(--gold)}.evidence{width:100%;text-align:left;margin:0 0 8px;color:var(--muted);font:13px monospace}.evidence.open{color:var(--green)}#filetext{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--accent);font:12px/1.6 monospace}
+.progress{height:7px;background:#263944;border-radius:6px;overflow:hidden;margin:15px 0}.progress>div{height:100%;width:0;background:var(--accent)}
+.footer{max-width:1480px;margin:5px auto 20px;padding:0 18px;color:#7e9eaa;font:12px monospace}
+@media(max-width:1080px){.container{grid-template-columns:200px 1fr}.right{grid-column:1/-1}}@media(max-width:700px){.container{display:flex;flex-direction:column}.top{padding:14px}.right{order:3}.left{order:2}.middle{order:1}}
+</style></head><body>
+<header class="top"><div><span class="logo">CODE<b>BREAK</b></span><div class="small">CASE 001 / THE LAST TRANSMISSION</div></div><div class="small"><span id="runtime">LOADING PYTHON…</span> · <span id="xp">0 XP</span> · <a href="../games.html">Back to Games & Apps</a></div></header>
+<div class="container">
+<aside class="panel left"><div class="head">CASE PROGRESSION</div><div id="chapters"></div><div class="content"><div class="small" id="progressLabel">0 / 5 completed</div><div class="progress"><div id="bar"></div></div><button id="reset">Reset case</button></div></aside>
+<main class="middle">
+<section class="panel"><div class="content"><div class="scene" id="time"></div><h1 id="title"></h1><p id="narrative"></p><div class="dialogue"><span class="filename" id="speaker"></span><p id="dialogue"></p></div></div></section>
+<section class="panel"><div class="head">INVESTIGATION TERMINAL / PYTHON</div><div class="content"><h2 id="objective"></h2><p class="lesson" id="lesson"></p><p class="filename">investigation.py — edit code below</p><label for="editor" class="small">SCRIPT EDITOR</label><textarea id="editor" spellcheck="false" aria-label="Python code editor"></textarea><div class="controls"><button class="primary" id="run" disabled>Run Python</button><button id="hint">Show hint</button><button id="restore">Restore starter</button><button id="next" disabled>Next mission →</button></div><div id="feedback" role="status" aria-live="polite"></div></div></section>
+<section class="panel"><div class="head">PROGRAM OUTPUT</div><div class="content"><pre id="output" aria-live="polite">&gt; Initializing Python…</pre></div></section>
+</main>
+<aside class="panel right"><div class="head">EVIDENCE LOCKER</div><div class="content"><p class="lesson">Solve missions to unlock the recovered case files.</p><div id="files"></div><pre id="filetext">Select an unlocked file to read it.</pre><div class="head">INVESTIGATION NOTES</div><p class="lesson" id="notes"></p></div></aside>
+</div><div class="footer">FICTIONAL INVESTIGATION · Local browser progress · Python runs in a dedicated worker · © Current & Craft, LLC</div>
+<script>
+'use strict';
+const missions=[
+{title:"The Unsent Message",time:"02:13 AM · NORTHLINE RESEARCH",speaker:"DETECTIVE MORGAN",dialogue:"Dr. Ellis left a damaged message. Print the recovered text.",narrative:"A researcher is found dead in a sealed laboratory. His terminal contains one fragment that may have been intended as a warning.",objective:"Recover the final message",lesson:'Use print() to display evidence["last_message"]. Python dictionaries store values by key.',starter:"# Print the last message from the evidence dictionary\n",hints:['Use print(...) to display a value.','Read a dictionary value using evidence["last_message"].','Try: print(evidence["last_message"])'],data:{last_message:"DON'T TRUST THE 11:42 REPORT."},expected:["DON'T TRUST THE 11:42 REPORT."],file:"UNSENT MESSAGE\\nDON'T TRUST THE 11:42 REPORT.",notes:"Basics: print(), strings, dictionaries."},
+{title:"The Night Shift",time:"02:24 AM · PERSONNEL RECORDS",speaker:"DETECTIVE MORGAN",dialogue:"Two people were authorized to work tonight. Give me both names.",narrative:"A corrupted shift manifest has been recovered. Two entries survived.",objective:"Identify the night-shift personnel",lesson:'Assign evidence["technician"] and evidence["director"] to variables, then print the two names on separate lines, technician first.',starter:"# Save both names into variables, then print each\n",hints:["Use = to assign a value to a variable.",'Example: person = evidence["technician"]',"Print the technician, then the director."],data:{technician:"ELENA CROSS",director:"MARCUS REED"},expected:["ELENA CROSS","MARCUS REED"],file:"PERSONNEL\\nTechnician: ELENA CROSS\\nDirector: MARCUS REED",notes:"Variables, assignment, and output."},
+{title:"The Access Log",time:"02:39 AM · SECURITY ARCHIVE",speaker:"DETECTIVE MORGAN",dialogue:"Find everyone who entered at or after 22:00. The building was supposed to be empty.",narrative:"The security archive contains hundreds of entries. A recovered subset points to unusual late-night activity.",objective:"Find late entries",lesson:'Loop through evidence["logs"]. Print the name from each record whose hour is at least 22.',starter:"# Each log has a 'name' and 'hour'\nfor record in evidence['logs']:\n    # Replace pass with your condition and print\n    pass\n",hints:["Use for to inspect each record.","Check if record['hour'] >= 22.","Inside the if block, print(record['name'])."],data:{logs:[{name:"ALICE WARD",hour:18},{name:"ELENA CROSS",hour:22},{name:"SECURITY PATROL",hour:21},{name:"MARCUS REED",hour:23}]},expected:["ELENA CROSS","MARCUS REED"],file:"ACCESS LOG\\n22:00 ELENA CROSS\\n23:00 MARCUS REED",notes:"Loops, conditions, >= comparisons."},
+{title:"A Forged Report",time:"02:56 AM · REPORT ARCHIVE",speaker:"DETECTIVE MORGAN",dialogue:"Someone submitted a late laboratory report. Find the timestamp that doesn't match.",narrative:"The report archive has inconsistent creation times. One entry appeared after the victim's final message.",objective:"Identify the suspicious report",lesson:'Loop through evidence["reports"]. Print the report id for reports marked suspicious (suspicious == True).',starter:"# Inspect evidence['reports'] and print suspicious report IDs\n",hints:["Loop over evidence['reports'].","Check the report's 'suspicious' boolean.","Print report['id'] if it is True."],data:{reports:[{id:"R-118",suspicious:false},{id:"R-119",suspicious:false},{id:"R-142",suspicious:true}]},expected:["R-142"],file:"REPORT AUDIT\\nR-142 was created at 23:42.\\nThe file metadata was altered.",notes:"Booleans, lists of dictionaries, filtering."},
+{title:"The Final Sequence",time:"03:12 AM · RECONSTRUCTION",speaker:"DETECTIVE MORGAN",dialogue:"Reconstruct the events in order. We'll question the suspect with the evidence in hand.",narrative:"The fragments can now be reconstructed. An apparently routine report was altered after the victim's warning.",objective:"Reconstruct the event sequence",lesson:'Create a function named reconstruct() that prints each event from evidence["timeline"] on its own line, then call it.',starter:"# Define reconstruct() and call it\n",hints:["A function begins with def reconstruct():","Use a for loop inside the function to iterate over evidence['timeline'].","Print each item inside the function, then call reconstruct()."],data:{timeline:["22:00 ELENA ENTERED","23:42 REPORT MODIFIED","00:13 MESSAGE RECOVERED"]},expected:["22:00 ELENA ENTERED","23:42 REPORT MODIFIED","00:13 MESSAGE RECOVERED"],file:"CASE RECONSTRUCTION\\nA forged report was uncovered.\\nThe evidence is sufficient to reopen the investigation.\\nCASE 001 COMPLETE.",notes:"Functions and combining everything learned."}];
+const $=id=>document.getElementById(id),KEY="codebreak-live-case001-v1";
+let state={mission:0,completed:[],drafts:{},hints:{}};
+try{let s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&Array.isArray(s.completed))state={...state,...s}}catch(e){}
+state.mission=Math.max(0,Math.min(4,state.mission||0));
+let worker,ready=false,busy=false,runId=0,timeoutId;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function lesson(){return missions[state.mission]}
+function render(){
+let m=lesson();["title","time","speaker","dialogue","narrative","objective","lesson","notes"].forEach(k=>$(k).textContent=m[k]);
+$("editor").value=state.drafts[state.mission]??m.starter;
+$("chapters").replaceChildren();missions.forEach((m,i)=>{let d=document.createElement("div");d.className="chapter "+(state.completed.includes(i)?"done":i===state.mission?"active":"");d.textContent=(state.completed.includes(i)?"✓ ":"0"+(i+1)+" / ")+m.title;$("chapters").appendChild(d)});
+$("xp").textContent=state.completed.length*100+" XP";$("progressLabel").textContent=state.completed.length+" / 5 completed";$("bar").style.width=(state.completed.length*20)+"%";
+$("files").replaceChildren();missions.forEach((m,i)=>{let b=document.createElement("button");b.className="evidence "+(state.completed.includes(i)?"open":"");b.textContent=(state.completed.includes(i)?"▣ ":"🔒 ")+("0"+(i+1))+" / "+m.title;b.disabled=!state.completed.includes(i);b.onclick=()=>$("filetext").textContent=m.file;$("files").appendChild(b)});
+$("next").disabled=!state.completed.includes(state.mission)||state.mission===4;
+$("next").textContent=state.mission===4?"Case complete":"Next mission →";
+$("run").disabled=!ready||busy;$("feedback").textContent=state.completed.includes(state.mission)?(state.mission===4?"CASE COMPLETE — ALL EVIDENCE RECOVERED":"Mission completed. Continue when ready."):"";
+}
+function startWorker(){
+ready=false;busy=false;if(worker)worker.terminate();$("runtime").textContent="LOADING PYTHON…";$("run").disabled=true;
+worker=new Worker("./python-worker.mjs",{type:"module"});
+worker.onmessage=({data})=>{
+if(data.type==="ready"){ready=true;$("runtime").textContent="PYTHON ONLINE";$("output").textContent="> Terminal ready. Write code and select Run Python.";render()}
+else if(data.type==="boot-error"){$("runtime").textContent="PYTHON ERROR";$("output").textContent="Unable to load Python. Check your internet connection. "+data.error}
+else if(data.type==="result"&&data.id===runId){clearTimeout(timeoutId);busy=false;ready=true;const output=data.output||"";$("output").textContent=data.error?"> "+data.error:output||"(No output)";if(data.error){$("feedback").textContent="Your program raised an error. Read the message and try again."}else{
+const lines=output.trim().split(/\r?\n/).map(s=>s.trim()).filter(Boolean),correct=JSON.stringify(lines)===JSON.stringify(lesson().expected);
+if(correct){if(!state.completed.includes(state.mission))state.completed.push(state.mission);$("feedback").textContent=state.mission===4?"CASE SOLVED — Final evidence recovered.":"Correct. New evidence recovered — inspect the Evidence Locker.";save()}
+else $("feedback").textContent="The output doesn't match the mission objective yet. Review your code or request a hint."}
+render()}};
+worker.onerror=()=>{$("runtime").textContent="PYTHON ERROR";$("output").textContent="Python worker failed. Refresh the page."};
+}
+$("editor").addEventListener("input",()=>{state.drafts[state.mission]=$("editor").value;save()});
+$("editor").addEventListener("keydown",e=>{if(e.key==="Tab"){e.preventDefault();let t=e.target,a=t.selectionStart,b=t.selectionEnd;t.setRangeText("    ",a,b,"end");state.drafts[state.mission]=t.value;save()}});
+$("run").onclick=()=>{if(!ready||busy)return;let source=$("editor").value;if(!source.trim()){$("feedback").textContent="Write Python code before running.";return}busy=true;$("run").disabled=true;$("output").textContent="> Running investigation.py…";let id=++runId;worker.postMessage({type:"run",id,source,evidence:lesson().data});timeoutId=setTimeout(()=>{if(id===runId&&busy){$("output").textContent="Execution exceeded 8 seconds; Python was restarted.";startWorker()}},8000)};
+$("hint").onclick=()=>{let i=Math.min(state.hints[state.mission]||0,2);$("feedback").textContent="HINT "+(i+1)+": "+lesson().hints[i];state.hints[state.mission]=Math.min(i+1,2);save()};
+$("restore").onclick=()=>{state.drafts[state.mission]=lesson().starter;save();render()};
+$("next").onclick=()=>{if(!state.completed.includes(state.mission)||state.mission===4)return;state.mission++;save();$("filetext").textContent="Select an unlocked file to read it.";render()};
+$("reset").onclick=()=>{if(!confirm("Reset all CODEBREAK case progress and code drafts?"))return;state={mission:0,completed:[],drafts:{},hints:{}};save();$("filetext").textContent="Select an unlocked file to read it.";render()};
+render();startWorker();
+</script></body></html>
