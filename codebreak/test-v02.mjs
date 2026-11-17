@@ -1,0 +1,26 @@
+// CODEBREAK v0.2 offline checks — run: node codebreak/test-v02.mjs
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+const base=new URL('./',import.meta.url);
+const read=name=>readFileSync(new URL(name,base),'utf8');
+const html=read('index.html'),shared=read('learning-support.js'),story=read('story-v02.js');
+const sandbox=vm.createContext({});
+vm.runInContext(shared,sandbox);
+vm.runInContext(story,sandbox);
+const {CodebreakLearning:teach,CodebreakStory02:caseStory}=sandbox;
+assert.equal(caseStory.beats.length,5);
+assert.ok(caseStory.beats.every(b=>b.headline&&b.text));
+assert.ok(caseStory.ending.length>=4);
+assert.match(caseStory.ending.join(' '),/Marcus Reed/);
+assert.equal(teach.diagnose('IndentationError: unexpected indent').title,'Unexpected indentation');
+assert.equal(teach.diagnose("SyntaxError: expected ':'").title,'Missing colon');
+assert.equal(teach.diagnose("NameError: name 'x' is not defined").title,'Unknown name');
+assert.match(teach.debrief(5),/Functions/);
+assert.doesNotMatch(html,/11:42 REPORT/);
+for(const id of ['story-beat','debrief','error-guide','help-mode'])assert.ok(html.includes('id="'+id+'"'));
+assert.ok(html.includes('codebreak-live-case001-v1'));
+const inline=html.match(/<script>\s*([\s\S]*?)<\/script>/);
+assert.ok(inline);
+new vm.Script(inline[1],{filename:'CODEBREAK v0.2 inline UI'});
+console.log('PASS: CODEBREAK v0.2 storyline, diagnostics, original progress and syntax.');
