@@ -92,17 +92,18 @@ function renderFiles(){
 }
 function renderTimeline(){
  const chronology=[
-  [0,'00:13 — Ellis discovered in the archive'],
-  [1,'Recovered warning points to R-142'],
-  [3,'22:00 — Elena enters; 23:00 — Marcus enters'],
-  [4,'22:18 — Elena exits; 23:26 — Marcus exits'],
-  [5,'23:10–23:30 — medical death window'],
-  [6,'23:42 — R-142 overwritten'],
-  [7,'23:44 — audit fingerprint mismatch'],
-  [8,'23:41 — camera and token correlate'],
-  [9,'23:16 — recovered audio places the confrontation']
+  {at:1320,unlock:3,text:'22:00 — Elena enters the laboratory'},
+  {at:1338,unlock:4,text:'22:18 — Elena leaves the restricted wing'},
+  {at:1380,unlock:3,text:'23:00 — Marcus enters the laboratory'},
+  {at:1390,unlock:5,text:'23:10–23:30 — estimated death window'},
+  {at:1396,unlock:9,text:'23:16 — Ellis confronts Marcus (audio)'},
+  {at:1406,unlock:4,text:'23:26 — Marcus leaves restricted wing'},
+  {at:1421,unlock:8,text:'23:41 — administrative office camera'},
+  {at:1422,unlock:6,text:'23:42 — report R-142 overwritten'},
+  {at:1424,unlock:7,text:'23:44 — audit hash mismatch'},
+  {at:1453,unlock:0,text:'00:13 — Ellis found in the archive'}
  ];
- $('case-timeline').textContent=chronology.filter(([n])=>n<=unlockLevel()).map(([,text])=>'• '+text).join('\n');
+ $('case-timeline').textContent=chronology.filter(x=>x.unlock<=unlockLevel()).sort((a,b)=>a.at-b.at).map(x=>'• '+x.text).join('\n');
 }
 function renderEnding(){
  const done=state.completed.includes(missions.length-1);
