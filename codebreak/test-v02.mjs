@@ -18,9 +18,19 @@ assert.equal(teach.diagnose("SyntaxError: expected ':'").title,'Missing colon');
 assert.equal(teach.diagnose("NameError: name 'x' is not defined").title,'Unknown name');
 assert.match(teach.debrief(5),/Functions/);
 assert.doesNotMatch(html,/11:42 REPORT/);
-for(const id of ['story-beat','debrief','error-guide','help-mode'])assert.ok(html.includes('id="'+id+'"'));
-assert.ok(html.includes('codebreak-live-case001-v1'));
-const inline=html.match(/<script>\s*([\s\S]*?)<\/script>/);
-assert.ok(inline);
-new vm.Script(inline[1],{filename:'CODEBREAK v0.2 inline UI'});
+if(html.includes('src="./game.js"')){
+  // v0.3 runs on top of the v0.2 shared learning foundation.
+  for(const id of ['help-mode','technique-panel','epilogue','editor'])assert.ok(html.includes('id="'+id+'"'));
+  assert.ok(html.includes('src="./learning-support.js"'));
+  const game=read('game.js');
+  assert.ok(game.includes("codebreak-live-case001-v1"));
+  assert.ok(game.includes('CodebreakLearning.diagnose'));
+  new vm.Script(game.replace(/^import .*?;\s*$/gm,''),{filename:'CODEBREAK v0.3 game.js'});
+}else{
+  for(const id of ['story-beat','debrief','error-guide','help-mode'])assert.ok(html.includes('id="'+id+'"'));
+  assert.ok(html.includes('codebreak-live-case001-v1'));
+  const inline=html.match(/<script>\s*([\s\S]*?)<\/script>/);
+  assert.ok(inline);
+  new vm.Script(inline[1],{filename:'CODEBREAK v0.2 inline UI'});
+}
 console.log('PASS: CODEBREAK v0.2 storyline, diagnostics, original progress and syntax.');
