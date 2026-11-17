@@ -96,7 +96,7 @@ function renderTimeline(){
   {at:1338,unlock:4,text:'22:18 — Elena leaves the restricted wing'},
   {at:1380,unlock:3,text:'23:00 — Marcus enters the laboratory'},
   {at:1390,unlock:5,text:'23:10–23:30 — estimated death window'},
-  {at:1396,unlock:9,text:'23:16 — Ellis confronts Marcus (audio)'},
+  {at:1396,unlock:8,text:'23:16 — Ellis confronts Marcus (audio)'},
   {at:1406,unlock:4,text:'23:26 — Marcus leaves restricted wing'},
   {at:1421,unlock:8,text:'23:41 — administrative office camera'},
   {at:1422,unlock:6,text:'23:42 — report R-142 overwritten'},
