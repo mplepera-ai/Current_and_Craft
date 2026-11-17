@@ -5,12 +5,13 @@ const KEY='codebreak-case001-v03';
 const OLD_KEY='codebreak-live-case001-v1';
 const marker = index=>'# === MISSION '+(index+1)+': '+missions[index].title.toUpperCase()+' ===';
 const startCode = '# CODEBREAK / CASE 001 / investigation.py\n# Every new mission appends code to this same file.\n# Available data: evidence (dictionary), case_files (file dictionary).\n# Run executes the whole file from the top.\n\n'+marker(0)+'\n'+missions[0].starter;
-let state={mission:0,completed:[],snapshots:{},code:startCode,hints:{},version:3};
+let state={mission:0,completed:[],snapshots:{},code:startCode,hints:{},helpMode:'beginner',version:3};
 try {
  const stored=JSON.parse(localStorage.getItem(KEY)||'null');
  if(stored&&stored.version===3&&typeof stored.code==='string'&&Array.isArray(stored.completed)) state={...state,...stored};
 } catch {}
 state.mission=Math.max(0,Math.min(missions.length-1,Number(state.mission)||0));
+if(state.helpMode!=='standard')state.helpMode='beginner';
 state.completed=Array.from(new Set(state.completed.filter(i=>Number.isInteger(i)&&i>=0&&i<missions.length))).sort((a,b)=>a-b);
 if(typeof state.code!=='string'||!state.code.trim())state.code=startCode;
 let selectedFile=null,worker=null,ready=false,busy=false,runId=0,deadline=null;
@@ -124,6 +125,8 @@ function render(){
  $('technique').textContent=m.technique;
  $('concepts').textContent='CONCEPTS: '+m.concepts;
  $('approach').textContent=m.approach;
+$('help-mode').value=state.helpMode;
+$('technique-panel').hidden=state.helpMode==='standard';
  $('lesson').textContent=m.lesson;
  if($('editor').value!==state.code)$('editor').value=state.code;
  $('run').disabled=!ready||busy;
@@ -134,21 +137,10 @@ function render(){
  $('outcome-text').textContent=complete?m.reveal:'';
  renderChapters();renderNotebook();renderFiles();renderTimeline();renderEnding();renderLegacy();
 }
-function explainError(error){
- if(/IndentationError: unexpected indent/i.test(error))return 'Indentation: a line has spaces Python did not expect. Check which for, if, or def block it belongs to.';
- if(/IndentationError: expected an indented block/i.test(error))return 'Indentation: a statement ending in a colon needs indented instructions underneath it.';
- if(/SyntaxError: expected ':'/i.test(error))return 'Syntax: Python expects a colon (:) after a def, for, or if header.';
- if(/SyntaxError/i.test(error))return 'Syntax: check punctuation, quotation marks, parentheses, and the line shown above.';
- if(/NameError/i.test(error))return 'NameError: a variable or function name is missing or spelled differently. Check capitalization.';
- if(/KeyError/i.test(error))return 'KeyError: that dictionary key was not found. Use the unlocked file viewer to confirm the field name.';
- if(/TypeError/i.test(error))return 'TypeError: an operation received the wrong kind of value (for example, a list instead of a string).';
- if(/IndexError/i.test(error))return 'IndexError: a list index is outside the available values.';
- if(/ModuleNotFoundError|ImportError/i.test(error))return 'Import error: this package is not available in the browser Python runtime.';
- return 'Read the Python traceback above. Check the named line, then try a smaller change.';
-}
 function showRuntimeError(error){
  $('output').textContent=error;
- $('diagnostic').textContent=explainError(error);
+ const diagnosis=CodebreakLearning.diagnose(error);
+ $('diagnostic').textContent=diagnosis.title+' — '+diagnosis.why+' WHAT TO CHECK: '+diagnosis.fix;
  setFeedback('Python stopped with an error. Fix it and run again. Your code is still saved.');
 }
 function startWorker(){
@@ -201,6 +193,7 @@ $('run').onclick=()=>{
  worker.postMessage({type:'run',id,source:state.code,evidence,caseFiles,requiredCallable:missions[level].requiredCallable||''});
  deadline=setTimeout(()=>{if(id!==runId||!busy)return;$('output').textContent='Execution timed out after 9 seconds. Python is restarting. Your script was preserved.';setFeedback('Check for a loop that never stops, then try again.');startWorker()},9000);
 };
+$('help-mode').addEventListener('change',()=>{state.helpMode=$('help-mode').value;save();render()});
 $('hint').onclick=()=>{
  const i=state.mission,level=Math.min(2,state.hints[i]||0);
  setFeedback('HINT '+(level+1)+': '+missions[i].hints[level]);
@@ -225,7 +218,7 @@ $('next').onclick=()=>{
 };
 $('reset').onclick=()=>{
  if(!confirm('Restart v0.3? This clears its progress and cumulative investigation.py. Your older prototype remains unchanged.'))return;
- state={mission:0,completed:[],snapshots:{},code:startCode,hints:{},version:3};selectedFile=null;save();render();setFeedback('v0.3 restarted.');
+ state={mission:0,completed:[],snapshots:{},code:startCode,hints:{},helpMode:'beginner',version:3};selectedFile=null;save();render();setFeedback('v0.3 restarted.');
  $('output').textContent='> Case reset. Run Python when ready.';
 };
 render();startWorker();
