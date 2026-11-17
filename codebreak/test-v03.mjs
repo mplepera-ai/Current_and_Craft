@@ -57,6 +57,10 @@ check('Browser UI has persistent workspace and reference controls',()=>{
  assert.ok(game.includes('state.code=state.code.trimEnd()'));
  assert.ok(game.includes('evidence,caseFiles'));
  assert.ok(reference.includes('...glossary.map')&&reference.includes('...entries.map'));
+ assert.ok(index.includes('src="./learning-support.js"'));
+ assert.ok(index.includes('id="help-mode"'));
+ assert.ok(game.includes('CodebreakLearning.diagnose'));
+ assert.ok(game.includes("state.helpMode==='standard'"));
 });
 check('Runtime operates on complete script, enforces function requirements and stays client-side',()=>{
  assert.ok(worker.includes('compile(_cb_source'));
