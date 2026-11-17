@@ -13,6 +13,7 @@ self.onmessage=({data})=>{
     py.globals.set('_cb_source',String(data.source||''));
     py.globals.set('_cb_evidence_json',JSON.stringify(data.evidence||{}));
     py.globals.set('_cb_files_json',JSON.stringify(data.caseFiles||{}));
+    py.globals.set('_cb_required',String(data.requiredCallable||''));
     const payload=py.runPython(`
 import io, contextlib, json, traceback
 _cb_stream=io.StringIO()
@@ -25,7 +26,7 @@ try:
         exec(compile(_cb_source,'investigation.py','exec'),_cb_locals,_cb_locals)
 except BaseException as exc:
     _cb_error=''.join(traceback.format_exception(type(exc),exc,exc.__traceback__,limit=4))
-json.dumps({'output':_cb_stream.getvalue()[-18000:], 'error':_cb_error[-6000:]})
+json.dumps({'output':_cb_stream.getvalue()[-18000:], 'error':_cb_error[-6000:],\n            'callable': bool(_cb_required and callable(_cb_locals.get(_cb_required)))})
 `);
     postMessage({type:'result',id:data.id,...JSON.parse(payload)});
   } catch(e) { postMessage({type:'result',id:data.id,output:'',error:String(e)}); }
