@@ -2,6 +2,14 @@
 
 A static, client-side browser game for learning Python through a **complete, fictional nine-mission investigation**.
 
+## Version reconciliation
+
+This branch is based on **CODEBREAK v0.2 (PR #18)**. It integrates the larger v0.3 investigation from the earlier draft PR #17 with the v0.2 beginner/standard teaching selection, shared Python-error explanations (`learning-support.js`), and local test coverage.
+
+**Merge order:** PR #18 first, then the integrated v0.3 PR (not the older standalone PR #17). After PR #18 is merged, the integrated PR can be retargeted from the v0.2 feature branch to `main`.
+
+The `story-v02.js` module remains in the repository as the earlier short-case narrative reference. The new game uses the more complete story in `case-data.js`.
+
 ## Run and deploy
 
 The Current & Craft static website hosts the game at `/codebreak/`. Serve the website over HTTP(S); opening `index.html` as `file://` will not reliably run module scripts or Web Workers.
@@ -54,6 +62,7 @@ The game is a prototype, not a hardened multi-tenant code execution service.
 ## Local regression checks
 
 ```bash
+node codebreak/test-v02.mjs
 node codebreak/test-v03.mjs
 ```
 
