@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python Symbol Field Guide | CODEBREAK</title>
+<meta name="description" content="Learn when and why Python uses parentheses, square brackets, curly braces, single quotes and double quotes.">
+<style>
+:root{color-scheme:dark;--bg:#09131c;--panel:#12222e;--edge:#304b59;--ink:#e1f0f2;--muted:#afc2ca;--accent:#7de4db;--gold:#f4c783}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 70% 0,#1c3c44,var(--bg) 60%);color:var(--ink);font:15px/1.55 system-ui,Segoe UI,Arial}
+header{display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap;align-items:center;padding:18px max(20px,calc((100vw - 1150px)/2));background:#0a1822;border-bottom:1px solid var(--edge)}
+a{color:var(--accent)}.brand{font:800 21px Consolas,monospace;letter-spacing:2px}.brand b{color:var(--accent)}main{max-width:1150px;margin:auto;padding:24px 18px 45px}
+h1{font-size:clamp(26px,3vw,38px);margin:8px 0}h2{font-size:21px;margin:0 0 10px}h3{font-size:16px;margin:0 0 8px}
+p{margin:7px 0 12px}.muted{color:var(--muted)}.eyebrow{font:700 11px Consolas,monospace;color:var(--gold);letter-spacing:1px}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}nav a{padding:8px 11px;border:1px solid #42606f;border-radius:6px;text-decoration:none;font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{border:1px solid var(--edge);border-radius:10px;background:var(--panel);padding:19px;scroll-margin-top:18px}
+.symbol{display:inline-block;font:800 29px Consolas,monospace;color:var(--accent);margin-bottom:6px}
+pre{background:#07131c;padding:14px;color:#abecc5;border-radius:6px;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.55 Consolas,monospace}
+code{font:13px Consolas,monospace;color:var(--accent)}.tip{padding:11px;border-left:3px solid var(--gold);background:#1c2c35;margin-top:10px;color:#dce6e6;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:10px;border-bottom:1px solid var(--edge);text-align:left;vertical-align:top}th{color:var(--accent)}
+section{margin-top:22px}.example{margin-top:9px}.practice{border:1px solid #376a70;border-radius:10px;padding:19px;background:#132a33;margin-top:24px}.practice details{border-top:1px solid #3b5963;padding:12px 0}summary{cursor:pointer;color:var(--accent)}.fine{font-size:12px;color:var(--muted)}
+@media(max-width:700px){.grid{grid-template-columns:1fr}main{padding:16px 12px}header{padding:14px}}
+</style></head><body>
+<header><div><span class="brand">CODE<b>BREAK</b></span><div class="fine">LEARNING LIBRARY / PYTHON FUNDAMENTALS</div></div><a href="./">Return to the investigation</a></header>
+<main>
+<div class="eyebrow">REFERENCE LESSON 001 · READ ANYTIME</div><h1>The Python Symbol Field Guide</h1>
+<p class="muted">What do <code>()</code>, <code>[]</code>, <code>{}</code>, single quotes and double quotes actually mean? This guide explains their jobs using unrelated examples. No investigation solutions are included.</p>
+<nav aria-label="Jump to Python symbols"><a href="#parentheses">Parentheses ( )</a><a href="#square">Square brackets [ ]</a><a href="#curly">Curly braces { }</a><a href="#quotes">Quotes ' and "</a><a href="#colon">Colon : and indentation</a><a href="#practice">Practice</a></nav>
+<div class="grid">
+<article class="card" id="parentheses"><div class="symbol">( )</div><h2>Parentheses: call or group</h2>
+<p>Use parentheses to <strong>call a function</strong>, supply its inputs (arguments), define function parameters, or control the order of arithmetic.</p>
+<pre>print("Welcome")
+len(["red", "blue"])
+total = (4 + 2) * 3
+
+def greet(person):
+    print("Hello", person)
+
+greet("Sam")</pre>
+<div class="tip">A function's name without <code>()</code> refers to the function itself. Adding <code>()</code> calls it. The parentheses are not optional when you want the function to run.</div></article>
+<article class="card" id="square"><div class="symbol">[ ]</div><h2>Square brackets: lists and lookups</h2>
+<p>Use square brackets to <strong>create a list</strong>, look up an item by position, or access a value in a dictionary by its key.</p>
+<pre>cities = ["Denver", "Tampa"]
+print(cities[0])
+
+device = {"model": "M3", "power": 80}
+print(device["power"])</pre>
+<div class="tip">List positions start at zero. In a dictionary, the value inside <code>[ ]</code> is the key you're looking for. A key such as <code>"power"</code> is text and needs quotes.</div></article>
+<article class="card" id="curly"><div class="symbol">{ }</div><h2>Curly braces: dictionaries and sets</h2>
+<p>Use curly braces to <strong>create a dictionary</strong> (keys and values separated by colons) or a set of unique values.</p>
+<pre>book = {"title": "Dune", "pages": 412}
+colors = {"red", "blue", "green"}
+
+print(book["pages"])
+print(len(colors))</pre>
+<div class="tip"><code>{}</code> by itself creates an <strong>empty dictionary</strong>, not an empty set. For an empty set, use <code>set()</code>. In Python, curly braces do not mark the beginning and end of an <code>if</code> or <code>for</code> block.</div></article>
+<article class="card" id="quotes"><div class="symbol">' ' &nbsp; " "</div><h2>Quotes: text values</h2>
+<p>Single quotes and double quotes both create <strong>strings</strong> (text). You may choose either for ordinary text, but the opening and closing quotes must match.</p>
+<pre>animal = 'otter'
+planet = "Mars"
+sentence = "It's raining"
+another = 'She said "hello"'
+
+print(animal)</pre>
+<div class="tip"><code>animal</code> refers to a variable; <code>"animal"</code> is literally the word animal. Quotes matter because they tell Python whether you mean text or a variable name.</div></article>
+</div>
+<section class="card" id="colon"><h2>Colon <code>:</code>, commas <code>,</code>, and indentation</h2>
+<p>A colon starts an indented block after statements like <code>if</code>, <code>for</code>, and <code>def</code>. A colon also separates a dictionary key from its value. Commas separate items or function arguments.</p>
+<pre>weather = {"city": "Boston", "temp": 67}
+
+for item in ["map", "compass"]:
+    if item == "map":
+        print("Pack:", item)
+
+print("Packing finished")</pre>
+<p class="muted">The indented lines belong to the loop or condition. The final line is outside those blocks and runs once after the loop.</p></section>
+<section class="card"><h2>Quick comparison</h2><table><thead><tr><th>Symbol</th><th>Typical purpose</th><th>Question to ask yourself</th></tr></thead><tbody>
+<tr><td><code>( )</code></td><td>Call a function / group expressions</td><td>Am I asking Python to run something?</td></tr>
+<tr><td><code>[ ]</code></td><td>Make a list / retrieve an item</td><td>Am I storing a sequence or looking up a value?</td></tr>
+<tr><td><code>{ }</code></td><td>Create a dictionary or set</td><td>Am I grouping named fields or unique values?</td></tr>
+<tr><td><code>' '</code> / <code>" "</code></td><td>Write text</td><td>Do I mean the actual word, rather than a variable?</td></tr>
+<tr><td><code>:</code></td><td>Begin code block / separate key and value</td><td>Am I starting a block or defining a dictionary field?</td></tr>
+</tbody></table></section>
+<section class="practice" id="practice"><div class="eyebrow">SELF-CHECK · NO MISSION SPOILERS</div><h2>Test your understanding</h2>
+<p>Try to answer these before opening the explanations.</p>
+<details><summary>1. Which symbol retrieves a dictionary field?</summary><p>Square brackets: <code>settings["volume"]</code>. The braces create the dictionary; the square brackets retrieve a value.</p></details>
+<details><summary>2. Why does <code>print("city")</code> differ from <code>print(city)</code>?</summary><p>The quoted form prints the text <code>city</code>. The unquoted form refers to a variable named <code>city</code>, which must have been defined.</p></details>
+<details><summary>3. What does <code>for pet in pets:</code> need below it?</summary><p>At least one indented statement forming the loop body. The colon opens the block.</p></details>
+<details><summary>4. What does <code>()</code> after a function name do?</summary><p>It calls that function, optionally passing arguments between the parentheses.</p></details>
+</section>
+<p class="fine">CODEBREAK / Current & Craft · This is educational reference material, not a game answer key. <a href="./">Return to your case</a></p>
+</main></body></html>
